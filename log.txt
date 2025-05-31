@@ -1,51 +1,31 @@
 Starting source
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+[Ciclo 0] Mensagem considerada: '0;1;1748698840.50373;1748698840.504863;1748698840.507054;1748698840.607267' | Tempo de resposta (MRT): 103.94 ms
+[Ciclo 0] Mensagem considerada: '0;2;1748698841.507246;1748698841.510814;1748698841.51712;1748698841.617395' | Tempo de resposta (MRT): 110.83 ms
+[Ciclo 0] Mensagem considerada: '0;3;1748698842.509163;1748698842.510105;1748698842.511712;1748698842.611993' | Tempo de resposta (MRT): 104.40 ms
+[Ciclo 0] Mensagem considerada: '0;4;1748698843.511881;1748698843.515025;1748698843.517485;1748698843.617674' | Tempo de resposta (MRT): 106.29 ms
+[Ciclo 0] Mensagem considerada: '0;5;1748698844.513289;1748698844.51422;1748698844.51807;1748698844.618345' | Tempo de resposta (MRT): 106.04 ms
+[Ciclo 0] Mensagem considerada: '0;6;1748698845.514212;1748698845.515001;1748698845.516079;1748698845.616262' | Tempo de resposta (MRT): 102.48 ms
+[Ciclo 0] Mensagem considerada: '0;7;1748698846.516587;1748698846.519642;1748698846.524718;1748698846.624958' | Tempo de resposta (MRT): 109.15 ms
+[Ciclo 0] Mensagem considerada: '0;8;1748698847.519643;1748698847.522885;1748698847.528505;1748698847.628641' | Tempo de resposta (MRT): 109.25 ms
+[Ciclo 0] Mensagem considerada: '0;9;1748698848.523562;1748698848.526292;1748698848.527972;1748698848.628186' | Tempo de resposta (MRT): 105.22 ms
+[Ciclo 0] Mensagem considerada: '0;10;1748698849.52527;1748698849.526179;1748698849.527783;1748698849.628137' | Tempo de resposta (MRT): 103.87 ms
 Ciclo 0 finalizado.
-Mensagens consideradas: 0
-MRT médio: 0.00 ms
-Desvio padrão do MRT: 0.00 ms
+Mensagens consideradas: 10
+MRT médio: 106.15 ms
+Desvio padrão do MRT: 2.61 ms
 ==============================
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
-Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
-Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+[Ciclo 1] Mensagem considerada: '1;1;1748698850.56693;1748698850.567868;1748698850.569362;1748698850.669682' | Tempo de resposta (MRT): 103.61 ms
+[Ciclo 1] Mensagem considerada: '1;2;1748698851.569967;1748698851.57337;1748698851.578816;1748698851.679166' | Tempo de resposta (MRT): 109.68 ms
+[Ciclo 1] Mensagem considerada: '1;3;1748698852.573805;1748698852.577717;1748698852.583882;1748698852.684483' | Tempo de resposta (MRT): 111.64 ms
+[Ciclo 1] Mensagem considerada: '1;4;1748698853.575871;1748698853.576841;1748698853.578573;1748698853.67874' | Tempo de resposta (MRT): 103.22 ms
+[Ciclo 1] Mensagem considerada: '1;5;1748698854.576803;1748698854.577536;1748698854.578729;1748698854.678906' | Tempo de resposta (MRT): 102.41 ms
+[Ciclo 1] Mensagem considerada: '1;6;1748698855.577708;1748698855.578496;1748698855.579684;1748698855.679794' | Tempo de resposta (MRT): 102.26 ms
+[Ciclo 1] Mensagem considerada: '1;7;1748698856.579929;1748698856.583149;1748698856.589075;1748698856.689371' | Tempo de resposta (MRT): 110.58 ms
+[Ciclo 1] Mensagem considerada: '1;8;1748698857.581672;1748698857.582617;1748698857.584038;1748698857.684193' | Tempo de resposta (MRT): 102.83 ms
+[Ciclo 1] Mensagem considerada: '1;9;1748698858.583256;1748698858.584637;1748698858.58598;1748698858.686611' | Tempo de resposta (MRT): 104.73 ms
+[Ciclo 1] Mensagem considerada: '1;10;1748698859.581489;1748698859.58282;1748698859.584483;1748698859.684758' | Tempo de resposta (MRT): 104.49 ms
 Ciclo 1 finalizado.
-Mensagens consideradas: 0
-MRT médio: 0.00 ms
-Desvio padrão do MRT: 0.00 ms
+Mensagens consideradas: 10
+MRT médio: 105.55 ms
+Desvio padrão do MRT: 3.44 ms
 ==============================
