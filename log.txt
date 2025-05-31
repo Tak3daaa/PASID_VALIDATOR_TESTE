@@ -1,0 +1,51 @@
+Starting source
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Ciclo 0 finalizado.
+Mensagens consideradas: 0
+MRT médio: 0.00 ms
+Desvio padrão do MRT: 0.00 ms
+==============================
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:2000: [Errno 111] Connection refused
+Erro ao enviar mensagem de configuração para localhost:3000: [Errno 111] Connection refused
+Erro ao enviar/receber mensagem para localhost:3000: [Errno 111] Connection refused
+Ciclo 1 finalizado.
+Mensagens consideradas: 0
+MRT médio: 0.00 ms
+Desvio padrão do MRT: 0.00 ms
+==============================
