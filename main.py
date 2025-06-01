@@ -8,107 +8,105 @@ from src.service import Service
 def iniciar_source(config=None):
     if config is None:
         config = carregar_config()
-    print("Configuracao carregada para Source:", config)
+    print("Config completa:", config)
 
-    print("=== Iniciando etapa de alimentacao do modelo (se configurada) ===")
+    # Primeiro estágio: model feeding
+    print("=== Iniciando etapa de alimentação do modelo ===")
     config_alimentacao = config.copy()
-    config_alimentacao["model_feeding_stage"] = True # Forcar true para esta instancia
+    config_alimentacao["model_feeding_stage"] = True
     source_alimentacao = Source(config_alimentacao)
-    if config_alimentacao.get("model_feeding_stage_enabled", True): # Adicionar uma flag para habilitar/desabilitar
-        source_alimentacao.run()
-    else:
-        print("Etapa de alimentacao do modelo desabilitada na configuracao.")
-
+    source_alimentacao.run()
 
     # Segundo estágio: validação
-    print("=== Iniciando etapa de validacao (se configurada) ===")
+    print("=== Iniciando etapa de validação ===")
     config_validacao = config.copy()
-    config_validacao["model_feeding_stage"] = False # Forcar false para esta instancia
+    config_validacao["model_feeding_stage"] = False
     source_validacao = Source(config_validacao)
-    if config_validacao.get("validation_stage_enabled", True):  # Adicionar uma flag para habilitar/desabilitar
-        source_validacao.run()
-    else:
-        print("Etapa de validacao desabilitada na configuracao.")
+    source_validacao.run()
 
+def iniciar_load_balancer(listen_port=2000, service_addresses=None):
+    if service_addresses is None or not service_addresses: # Adicionado 'not service_addresses'
+        # Este caminho só deve ser tomado se explicitamente nenhum endereço for fornecido E você quiser um default.
+        # Dado o docker-compose, service_addresses NUNCA deveria ser None aqui.
+        print(f"ALERTA: Load balancer na porta {listen_port} esta sem servicos de backend configurados ou usando default problemático.")
+        # Considerar sair com erro se service_addresses for None ou vazio quando é esperado do docker-compose.
+        # service_addresses = [("localhost", 4001), ("localhost", 4002)] # Remova ou comente defaults 'localhost' se não aplicável
+        if not service_addresses: # Se for uma lista vazia explicitamente
+             print(f"ERRO: Load balancer na porta {listen_port} recebeu uma lista vazia de servicos.")
+             sys.exit(1) # Ou trate como o LoadBalancer deve se comportar sem backends
 
-def iniciar_load_balancer(listen_port=2000, service_addresses_str=None): # Recebe a string
-    parsed_service_addresses = []
-    if service_addresses_str:
-        try:
-            address_pairs = service_addresses_str.split(',')
-            for pair_str in address_pairs:
-                if ':' not in pair_str:
-                    raise ValueError(f"Par de endereco/porta invalido: '{pair_str}'")
-                ip, port_s = pair_str.split(':', 1)
-                parsed_service_addresses.append((ip.strip(), int(port_s.strip())))
-        except ValueError as e:
-            print(f"ERRO CRITICO ao parsear service_addresses ('{service_addresses_str}') para o load balancer: {e}")
-            # Decidir se sai ou inicia com lista vazia (que o LB tratara como erro)
-            # Por seguranca, vamos sair se o parse falhar
-            sys.exit(f"Falha ao parsear enderecos para LB: {service_addresses_str}")
-    
-    if not parsed_service_addresses:
-        # Isso acontecera se service_addresses_str for None ou vazio, ou se o parse falhar e nao sair acima.
-        print(f"ALERTA: Load balancer na porta {listen_port} iniciando sem servicos de backend explicitos. Verifique a chamada.")
-        # O construtor do LoadBalancer agora loga um alerta se a lista estiver vazia.
-        # Permitir que o LB seja inicializado com lista vazia e ele proprio lide com isso.
-    
-    lb = LoadBalancer(listen_port=listen_port, service_addresses=parsed_service_addresses)
+    lb = LoadBalancer(listen_port=listen_port, service_addresses=service_addresses)
     lb.start()
 
-# Modificado para aceitar model_name
-def iniciar_service(port, service_time_ms, model_name: str):
-    # service_time_ms nao e mais usado diretamente se o tempo de servico e o da IA.
-    # Pode ser mantido para outros usos ou removido.
-    print(f"Tentando iniciar servico na porta {port} com modelo IA '{model_name}' (service_time_ms={service_time_ms} ignorado).")
-    service = Service(listen_port=port, service_time_ms=service_time_ms, model_name=model_name)
+def iniciar_service(port, service_time_ms):
+    service = Service(listen_port=port, service_time_ms=service_time_ms)
     service.start()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Chamada de argumentos invalida. Uso: python main.py [source|load_balancer|service] [opcoes...]")
+        print("Chamada de argumentos invalida")
         sys.exit(1)
 
     role = sys.argv[1].lower()
-    config = carregar_config() # Carrega config geral uma vez
 
     if role == "source":
-        print("Iniciando Source...")
-        # Passar a config carregada para a funcao, para que ela possa ser usada/modificada
-        iniciar_source(config=config)
+        print("Iniciando Source")
+        iniciar_source()
 
     elif role == "load_balancer":
-        if len(sys.argv) < 4: # python main.py load_balancer <listen_port> "<ip1>:<port1>,<ip2>:<port2>"
-            print("Erro ao executar load balancer. Parametros invalidos.")
-            print("Uso: python main.py load_balancer <listen_port> \"ip1:port1,ip2:port2,...\"")
+        if len(sys.argv) < 4: # Espera: python main.py load_balancer <listen_port> "<ip1>:<port1>,<ip2>:<port2>,..."
+            print(f"Erro: Parametros invalidos para load_balancer.")
+            print(f"Esperado: python main.py load_balancer <listen_port> \"ip1:port1,ip2:port2,...\"")
             sys.exit(1)
+
         try:
-            listen_port_arg = int(sys.argv[2])
+            listen_port = int(sys.argv[2])
         except ValueError:
-            print(f"Erro: listen_port '{sys.argv[2]}' para load_balancer deve ser um inteiro.")
+            print(f"Erro: listen_port ('{sys.argv[2]}') invalido para load_balancer.")
             sys.exit(1)
-            
-        service_addresses_arg = sys.argv[3] # String ex: "service1:4001,service2:4002"
-        print(f"Iniciando Load_Balancer na porta {listen_port_arg} com servicos backend: {service_addresses_arg}")
-        iniciar_load_balancer(listen_port=listen_port_arg, service_addresses_str=service_addresses_arg)
+
+        service_addresses_str = sys.argv[3]
+        parsed_service_addresses = []
+        if not service_addresses_str:
+            print(f"Erro: String de enderecos de servico (service_addresses) esta vazia para load_balancer.")
+            sys.exit(1)
+
+        try:
+            address_pairs = service_addresses_str.split(',')
+            for pair_str in address_pairs:
+                if ':' not in pair_str:
+                    # Levanta um erro se um par nao contiver ':'
+                    raise ValueError(f"Formato invalido para o par endereco:porta '{pair_str}' na string '{service_addresses_str}'")
+
+                ip, port_str = pair_str.split(':', 1) # Divide apenas no primeiro ':'
+                if not ip or not port_str: # Verifica se ip ou porta estao vazios
+                    raise ValueError(f"IP ou porta vazios no par '{pair_str}' na string '{service_addresses_str}'")
+                parsed_service_addresses.append((ip.strip(), int(port_str.strip())))
+        except ValueError as e:
+            print(f"Erro critico ao parsear service_addresses ('{service_addresses_str}') para o load_balancer: {e}")
+            sys.exit(1)
+
+        if not parsed_service_addresses:
+            print(f"Erro: Nenhum endereco de servico valido foi parseado de '{service_addresses_str}' para o load_balancer.")
+            sys.exit(1)
+
+        # Se chegou aqui, o parsing foi bem-sucedido
+        print(f"Iniciando Load_Balancer na porta {listen_port} com servicos: {parsed_service_addresses}")
+        # Certifique-se que iniciar_load_balancer use esses enderecos parseados
+        # e não o default 'localhost' que está na assinatura da função.
+        iniciar_load_balancer(listen_port=listen_port, service_addresses=parsed_service_addresses)
 
     elif role == "service":
-        # Adicionado argumento para model_name
-        if len(sys.argv) < 5: # python main.py service <port> <service_time_ms> <model_name>
-            print("Erro ao executar service. Parametros invalidos.")
-            print("Uso: python main.py service <port> <service_time_ms_dummy> <model_name>")
+        if len(sys.argv) < 4: # Espera: python main.py service <port> <service_time_ms>
+            print(f"Erro: Parametros invalidos para service.")
+            print(f"Esperado: python main.py service <port> <service_time_ms>")
             sys.exit(1)
         try:
-            port_arg = int(sys.argv[2])
-            service_time_ms_arg = float(sys.argv[3]) # Ainda passado, mas pode ser ignorado pelo Service
-            model_name_arg = sys.argv[4]
+            port = int(sys.argv[2])
+            service_time_ms = float(sys.argv[3])
         except ValueError:
             print(f"Erro: port ('{sys.argv[2]}') ou service_time_ms ('{sys.argv[3]}') invalidos para service.")
             sys.exit(1)
-            
-        print(f"Iniciando servico na porta {port_arg} com modelo {model_name_arg}...")
-        iniciar_service(port_arg, service_time_ms_arg, model_name_arg)
 
-    else:
-        print(f"Opcao desconhecida: {role}")
-        sys.exit(1)
+        print(f"Iniciando servico na porta {port} com tempo de servico {service_time_ms}ms")
+        iniciar_service(port, service_time_ms)

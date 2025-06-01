@@ -1,0 +1,85 @@
+services:
+
+  source:
+    build: .
+    command: python main.py source
+    container_name: source
+    depends_on:
+      - loadbalancer1
+      - loadbalancer2
+    networks:
+      - pasidnet
+    volumes:
+      - ./log.txt:/app/log.txt
+
+  loadbalancer1:
+    build: .
+    command: python main.py load_balancer 2000 "service1:4001,service2:4002"
+    container_name: loadbalancer1
+    ports:
+      - "2000:2000"
+    depends_on:
+      - service1
+      - service2
+    networks:
+      - pasidnet
+
+  loadbalancer2:
+    build: .
+    command: python main.py load_balancer 3000 "service3:4100,service4:4101"
+    container_name: loadbalancer2
+    ports:
+      - "3000:3000"
+    depends_on:
+      - service3
+      - service4
+    networks:
+      - pasidnet
+
+  service1:
+    build: .
+    command: python main.py service 4001 100
+    container_name: service1
+    networks:
+      - pasidnet
+    ports:
+      - "4001:4001"
+    env_file:
+      - .env
+
+  service2:
+    build: .
+    command: python main.py service 4002 100
+    container_name: service2
+    networks:
+      - pasidnet
+    ports:
+      - "4002:4002"
+    env_file:
+      - .env
+
+  service3:
+    build: .
+    command: python main.py service 4100 100
+    container_name: service3
+    networks:
+      - pasidnet
+    ports:
+      - "4100:4100"
+    env_file:
+      - .env
+
+  service4:
+    build: .
+    command: python main.py service 4101 100
+    container_name: service4
+    networks:
+      - pasidnet
+    ports:
+      - "4101:4101"
+    env_file:
+      - .env
+
+networks:
+  pasidnet:
+    driver: bridge

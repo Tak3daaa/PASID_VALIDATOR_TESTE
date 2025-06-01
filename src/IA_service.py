@@ -1,67 +1,100 @@
-# src/IA_service.py
-from ollama import ChatResponse, Client
+from decouple import config
+from groq import Groq, RateLimitError, APIConnectionError, APIStatusError
+import time
+import random # Para adicionar jitter ao delay
+
+GROQ_API_KEY = config("GROQ_API_KEY", default=None)
 
 class IAService:
-    
-    def __init__(self, model_name: str = "llama3"): # Chave amigável default pode ser "llama3"
-        # IMPORTANTE: Os VALORES neste dicionario devem ser os NOMES/TAGS EXATOS 
-        # que aparecem no 'ollama list' apos o pull bem-sucedido.
-        self.available_models_map = {
-            "llama3": "llama3:latest",  # Assumindo que 'ollama pull llama3' resulta em 'llama3:latest'
-                                        # Se 'ollama list' mostrar apenas 'llama3', use 'llama3' aqui.
-            "deepseek-llm-7b": "deepseek-llm:7b" # Este deve ser o nome exato como no Ollama Hub e no pull
-        }
-        
-        self.model_key_used = model_name # O nome amigável passado (ex: "llama3" ou "deepseek-llm-7b-chat")
-        
-        if model_name in self.available_models_map:
-            self.model_ollama_tag = self.available_models_map[model_name] # O nome/tag exato para o Ollama
-            print(f"[IAService] Configurado para usar a chave '{model_name}', que mapeia para o modelo Ollama: '{self.model_ollama_tag}'")
-        else:
-            default_key = "llama3" 
-            if default_key in self.available_models_map:
-                 self.model_ollama_tag = self.available_models_map[default_key]
-                 print(f"[IAService] ATENCAO: Chave de modelo '{model_name}' nao reconhecida no mapeamento. Usando default '{default_key}' -> '{self.model_ollama_tag}'.")
-                 self.model_key_used = default_key
-            else:
-                self.model_ollama_tag = model_name # Tenta usar o nome diretamente se nao estiver no mapa e o default tambem nao
-                print(f"[IAService] ERRO CRITICO: Chave de modelo '{model_name}' E a chave default '{default_key}' nao encontradas no mapeamento 'available_models_map'.")
-                print(f"[IAService] Tentando usar '{model_name}' diretamente. Verifique a configuracao e os nomes dos modelos no Ollama.")
+    def __init__(self):
+        if not GROQ_API_KEY:
+            print("[IAService] ERRO CRÍTICO: GROQ_API_KEY não definida!")
+            raise ValueError("A variável de ambiente GROQ_API_KEY não foi definida.")
 
+        # Desabilita retentativas da biblioteca para controle manual total
+        self.client = Groq(
+            api_key=GROQ_API_KEY,
+            max_retries=0 
+        )
+        self.model = "llama-3.1-8b-instant"
+        print(f"[IAService] Configurado para usar o modelo Groq: '{self.model}' com retentativas manuais.")
 
-        self.client = Client(host="http://ollama:11434")
-        
-        try:
-            server_models_info = self.client.list() 
-            print(f"[IAService] Conectado ao Ollama. Verificando modelo Ollama '{self.model_ollama_tag}'...")
-            models_on_server = server_models_info.get('models', [])
-            
-            model_found = any(m.get('name') == self.model_ollama_tag for m in models_on_server)
-            
-            if not model_found:
-                 print(f"[IAService] ATENCAO: Modelo Ollama '{self.model_ollama_tag}' (da chave '{self.model_key_used}') NAO FOI ENCONTRADO na lista do servidor Ollama.")
-                 print(f"[IAService] Modelos disponiveis no servidor: {[m.get('name') for m in models_on_server]}")
-                 print(f"[IAService] Certifique-se que o modelo foi baixado ('pulled') corretamente e o nome/tag em 'available_models_map' esta exato.")
-            else:
-                print(f"[IAService] Modelo Ollama '{self.model_ollama_tag}' parece estar disponivel no servidor.")
+    def ask(self, prompt: str, max_manual_retries: int = 5, initial_delay_seconds: float = 5.0) -> str:
+        print(f"[IAService] Enviando para Groq (modelo: '{self.model}', prompt com {len(prompt)} chars): '{prompt[:100]}...'")
 
-        except Exception as e:
-            print(f"[IAService] ERRO ao conectar ou listar modelos do Ollama: {e}")
-            print("[IAService] O servico de IA pode nao funcionar.")
+        for attempt in range(max_manual_retries):
+            start_time_attempt = time.time()
+            try:
+                chat_completion = self.client.chat.completions.create(
+                    model=self.model, 
+                    messages=[{"role": "user", "content": prompt}]
+                    # Considere adicionar um timeout para a requisição da API aqui se suportado
+                    # Ex: timeout=60.0 (segundos)
+                )
+                end_time_attempt = time.time()
+                response_content = chat_completion.choices[0].message.content.strip().replace('*', '')
+                print(f"[IAService] Resposta da Groq recebida (tentativa {attempt + 1}) em {end_time_attempt - start_time_attempt:.2f}s: '{response_content[:100]}...'")
+                return response_content
 
-    def ask(self, prompt: str) -> str:
-        if not prompt:
-            return "Erro: Prompt vazio fornecido ao servico de IA."
-        try:
-            print(f"[IAService] Enviando prompt para o modelo Ollama '{self.model_ollama_tag}': '{prompt[:50]}...'")
-            ia_response: ChatResponse = self.client.chat(
-                model=self.model_ollama_tag, 
-                messages=[{"role": "user", "content": prompt}]
-            )
-            response_content = ia_response.message.content
-            print(f"[IAService] Resposta recebida do modelo Ollama '{self.model_ollama_tag}': '{response_content[:50]}...'")
-            return response_content
-        except Exception as e:
-            error_message = f"{e}" 
-            print(f"[IAService] ERRO ao chamar o modelo de IA '{self.model_ollama_tag}': {error_message}")
-            return f"Erro ao processar com IA: {error_message}"
+            except RateLimitError as e:
+                end_time_attempt = time.time()
+                error_message = e.body.get('error', {}).get('message', str(e)) if hasattr(e, 'body') and e.body else str(e)
+                print(f"[IAService] RATE LIMIT da Groq (tentativa {attempt + 1}/{max_manual_retries}) em {end_time_attempt - start_time_attempt:.2f}s: {error_message}")
+
+                if attempt < max_manual_retries - 1:
+                    # Backoff exponencial com jitter
+                    # Extrai o tempo de espera da mensagem de erro se possível, senão usa backoff
+                    # Ex: "Please try again in 1m7.026s."
+                    delay_seconds = initial_delay_seconds * (2 ** attempt) + random.uniform(0, 1)
+
+                    # Tenta parsear o 'try again in' da mensagem de erro para um delay mais preciso
+                    if "try again in" in error_message:
+                        try:
+                            time_str = error_message.split("try again in")[1].split(".")[0].strip() # Pega "XmYs" ou "Xs" ou "Xm"
+                            parsed_delay = 0
+                            if "m" in time_str:
+                                parsed_delay += int(time_str.split("m")[0]) * 60
+                                if "s" in time_str.split("m")[1]:
+                                     parsed_delay += int(time_str.split("m")[1].replace("s",""))
+                            elif "s" in time_str:
+                                parsed_delay += int(time_str.replace("s",""))
+
+                            if parsed_delay > 0:
+                                delay_seconds = parsed_delay + random.uniform(1, 3) # Adiciona pequeno buffer
+                                print(f"[IAService] Respeitando delay da API Groq: {delay_seconds:.2f}s")
+
+                        except Exception as parse_ex:
+                            print(f"[IAService] Não foi possível parsear o delay da mensagem de erro Groq: {parse_ex}. Usando backoff exponencial padrão.")
+
+                    print(f"[IAService] Próxima tentativa em {delay_seconds:.2f}s...")
+                    time.sleep(delay_seconds)
+                else:
+                    print(f"[IAService] Máximo de {max_manual_retries} tentativas manuais excedido para rate limit.")
+                    return f"Erro: Limite de taxa da Groq excedido após {max_manual_retries} tentativas. {error_message}"
+
+            except (APIConnectionError, APIStatusError) as e:
+                end_time_attempt = time.time()
+                status_code_info = f" (status: {e.status_code})" if hasattr(e, 'status_code') else ""
+                print(f"[IAService] ERRO DE API/CONEXÃO da Groq{status_code_info} (tentativa {attempt + 1}/{max_manual_retries}) em {end_time_attempt - start_time_attempt:.2f}s: {e}")
+                # Para esses erros, um backoff mais curto pode ser apropriado se forem transientes
+                if attempt < max_manual_retries - 1:
+                    delay_seconds = initial_delay_seconds * (2 ** attempt) / 2 + random.uniform(0, 1) # Backoff mais curto
+                    print(f"[IAService] Próxima tentativa em {delay_seconds:.2f}s...")
+                    time.sleep(delay_seconds)
+                else:
+                    print(f"[IAService] Máximo de {max_manual_retries} tentativas manuais excedido para erro de API/Conexão.")
+                    return f"Erro de API/Conexão com a Groq após {max_manual_retries} tentativas: {str(e)}"
+
+            except Exception as e:
+                end_time_attempt = time.time()
+                print(f"[IAService] ERRO INESPERADO (tentativa {attempt + 1}/{max_manual_retries}) em {end_time_attempt - start_time_attempt:.2f}s: {type(e).__name__} - {e}")
+                # Para erros inesperados, pode não fazer sentido tentar novamente muitas vezes
+                if attempt < 1 : # Tenta apenas mais uma vez para erro totalmente inesperado
+                     delay_seconds = initial_delay_seconds + random.uniform(0, 1)
+                     print(f"[IAService] Próxima tentativa em {delay_seconds:.2f}s...")
+                     time.sleep(delay_seconds)
+                else:
+                    return f"Erro inesperado ao processar com a Groq: {str(e)}"
+
+        # Se o loop terminar sem retornar, todas as tentativas falharam
+        return f"Erro: Falha ao obter resposta da Groq após {max_manual_retries} tentativas manuais."
